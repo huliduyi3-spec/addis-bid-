@@ -1,0 +1,61 @@
+import React from 'react';
+import { X, HelpCircle, ArrowRight, Lightbulb } from 'lucide-react';
+
+interface HowItWorksModalProps {
+  onClose: () => void;
+  onOpenSandbox: () => void;
+}
+
+export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({ onClose, onOpenSandbox }) => {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl flex flex-col relative my-auto">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-800 sticky top-0 bg-slate-900/95 backdrop-blur z-20">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400">
+              <HelpCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="font-display font-bold text-lg text-white">How Addis Bid Works</h2>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-white rounded-lg">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-4 sm:p-6 space-y-6 text-xs sm:text-sm text-slate-300">
+          <p className="text-slate-400 leading-relaxed">
+            The winner is the participant who places the <strong className="text-amber-300">lowest price that no one else submitted</strong>.
+          </p>
+
+          <div className="grid grid-cols-1 gap-3">
+            <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+              <h4 className="font-semibold text-white">1. Your Bid Is Secret</h4>
+              <p className="text-xs text-slate-400 mt-0.5">All submitted prices are encrypted and hidden from other bidders.</p>
+            </div>
+            <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+              <h4 className="font-semibold text-white">2. Duplicate Bids Cancel Out</h4>
+              <p className="text-xs text-slate-400 mt-0.5">If two or more bidders place the exact same price, both are cancelled out!</p>
+            </div>
+            <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+              <h4 className="font-semibold text-white">3. Lowest Unique Wins</h4>
+              <p className="text-xs text-slate-400 mt-0.5">When time expires, the lowest non-repeated bid claims the prize!</p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              onClose();
+              onOpenSandbox();
+            }}
+            className="w-full py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-lg flex items-center justify-center gap-2"
+          >
+            <span>Practice in Strategy Sandbox</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};

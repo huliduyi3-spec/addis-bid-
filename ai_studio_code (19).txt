@@ -1,0 +1,292 @@
+import React, { useState, useEffect } from 'react';
+import { Search, Trophy, ChevronRight } from 'lucide-react';
+import { Navbar } from './components/Navbar';
+import { HeroBanner } from './components/HeroBanner';
+import { AuctionCard } from './components/AuctionCard';
+import { AuctionDetailModal } from './components/AuctionDetailModal';
+import { AuctionResultModal } from './components/AuctionResultModal';
+import { HowItWorksModal } from './components/HowItWorksModal';
+import { StrategySandbox } from './components/StrategySandbox';
+import { WalletModal } from './components/WalletModal';
+import { MyBidsModal } from './components/MyBidsModal';
+import { ClaimPrizeModal } from './components/ClaimPrizeModal';
+import { NotificationsPopover } from './components/NotificationsPopover';
+import { MOCK_AUCTIONS, INITIAL_USER } from './data/mockAuctions';
+import { AuctionItem, UserProfile, UserBid, WalletTransaction, AppNotification, AuctionCategory, PaymentMethod } from './types/auction';
+import { analyzeLUB, formatETB, formatUSD, getBidStatus, SAMPLE_BIDDER_NAMES } from './utils/lubEngine';
+
+export default function App() {
+  const [auctions, setAuctions] = useState<AuctionItem[]>(MOCK_AUCTIONS);
+  const [user, setUser] = useState<UserProfile>(INITIAL_USER);
+  const [currency, setCurrency] = useState<'ETB' | 'USD'>('ETB');
+
+  const [userBids, setUserBids] = useState<UserBid[]>([
+    {
+      id: 'ub-1',
+      auctionId: 'auc-suv-byd',
+      auctionTitle: 'BYD Song Plus EV Luxury Edition',
+      auctionImage: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80',
+      amount: 3.84,
+      feePaidETB: 75,
+      placedAt: Date.now() - 15 * 60 * 1000,
+      status: 'unique_lowest',
+    },
+  ]);
+
+  const [transactions, setTransactions] = useState<WalletTransaction[]>([
+    {
+      id: 'tx-1',
+      type: 'deposit',
+      method: 'telebirr',
+      amountETB: 3500,
+      description: 'telebirr Mobile Money Instant Deposit',
+      timestamp: Date.now() - 86400000,
+      referenceId: 'TLB-893120-ET',
+      status: 'completed',
+    },
+  ]);
+
+  const [notifications, setNotifications] = useState<AppNotification[]>([
+    {
+      id: 'notif-1',
+      title: '🌟 Leading Position!',
+      message: 'Your bid of 3.84 ETB on BYD Song Plus EV is currently the Lowest Unique Bid!',
+      timestamp: Date.now() - 12 * 60 * 1000,
+      read: false,
+      type: 'unique_alert',
+      auctionId: 'auc-suv-byd',
+    },
+  ]);
+
+  const [selectedAuction, setSelectedAuction] = useState<AuctionItem | null>(null);
+  const [auditAuction, setAuditAuction] = useState<AuctionItem | null>(null);
+  const [claimAuction, setClaimAuction] = useState<AuctionItem | null>(null);
+  const [isWalletOpen, setIsWalletOpen] = useState<boolean>(false);
+  const [isHowItWorksOpen, setIsHowItWorksOpen] = useState<boolean>(false);
+  const [isSandboxOpen, setIsSandboxOpen] = useState<boolean>(false);
+  const [isMyBidsOpen, setIsMyBidsOpen] = useState<boolean>(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState<boolean>(false);
+
+  const [categoryFilter, setCategoryFilter] = useState<AuctionCategory>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortBy, setSortBy] = useState<'ending_soon' | 'value_high' | 'bids_high'>('ending_soon');
+  const [activeNavTab, setActiveNavTab] = useState<string>('auctions');
+
+  const handlePlaceBid = (auctionId: string, amount: number): boolean => {
+    const target = auctions.find((a) => a.id === auctionId);
+    if (!target) return false;
+
+    if (user.walletBalanceETB < target.entryFeeETB) {
+      setIsWalletOpen(true);
+      return false;
+    }
+
+    const newBidRecord = {
+      id: `bid-usr-${Date.now()}`,
+      userId: user.id,
+      userName: user.name,
+      amount,
+      timestamp: Date.now(),
+      isUser: true,
+    };
+
+    const updatedBids = [...target.bids, newBidRecord];
+    const status = getBidStatus(amount, updatedBids);
+
+    setAuctions((prev) =>
+      prev.map((a) =>
+        a.id === auctionId ? { ...a, bids: updatedBids, totalBidsCount: updatedBids.length } : a
+      )
+    );
+
+    setUser((prev) => ({
+      ...prev,
+      walletBalanceETB: prev.walletBalanceETB - target.entryFeeETB,
+      totalBidsPlaced: prev.totalBidsPlaced + 1,
+    }));
+
+    const newBid: UserBid = {
+      id: `ub-${Date.now()}`,
+      auctionId,
+      auctionTitle: target.title,
+      auctionImage: target.image,
+      amount,
+      feePaidETB: target.entryFeeETB,
+      placedAt: Date.now(),
+      status,
+    };
+    setUserBids((prev) => [newBid, ...prev]);
+    return true;
+  };
+
+  const handlePlaceSpreadBids = (auctionId: string, amounts: number[]) => {
+    amounts.forEach((amt) => handlePlaceBid(auctionId, amt));
+  };
+
+  const handleDeposit = (amount: number, method: PaymentMethod) => {
+    setUser((prev) => ({
+      ...prev,
+      walletBalanceETB: prev.walletBalanceETB + amount,
+    }));
+  };
+
+  const filteredAuctions = auctions.filter((auc) => {
+    const matchesCategory = categoryFilter === 'all' || auc.category === categoryFilter;
+    const matchesSearch =
+      auc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      auc.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const featuredItem = auctions[0];
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-500/30">
+      <Navbar
+        user={user}
+        currency={currency}
+        onToggleCurrency={() => setCurrency((c) => (c === 'ETB' ? 'USD' : 'ETB'))}
+        notifications={notifications}
+        onOpenWallet={() => setIsWalletOpen(true)}
+        onOpenMyBids={() => setIsMyBidsOpen(true)}
+        onOpenHowItWorks={() => setIsHowItWorksOpen(true)}
+        onOpenSandbox={() => setIsSandboxOpen(true)}
+        onOpenWinners={() => {
+          const completedLot = auctions.find((a) => a.status === 'completed') || auctions[0];
+          setAuditAuction(completedLot);
+        }}
+        onOpenNotifications={() => setIsNotificationsOpen(true)}
+        activeNavTab={activeNavTab}
+        setActiveNavTab={setActiveNavTab}
+      />
+
+      <HeroBanner
+        featuredItem={featuredItem}
+        currency={currency}
+        onSelectAuction={(item) => setSelectedAuction(item)}
+        onOpenSandbox={() => setIsSandboxOpen(true)}
+        onOpenHowItWorks={() => setIsHowItWorksOpen(true)}
+      />
+
+      <main id="auctions-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 w-full">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-800">
+          <div>
+            <div className="text-xs text-amber-400 font-semibold mb-1">EXPLORE LOTS · SECRET REVERSE AUCTIONS</div>
+            <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-white tracking-tight">
+              Active Auction Catalog
+            </h2>
+          </div>
+
+          <div className="flex items-center gap-1.5 p-1 bg-slate-900 border border-slate-800 rounded-lg overflow-x-auto">
+            {(['all', 'vehicles', 'smartphones', 'laptops', 'gaming'] as AuctionCategory[]).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setCategoryFilter(cat)}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-md whitespace-nowrap capitalize ${
+                  categoryFilter === cat ? 'bg-amber-400 text-slate-950' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                {cat === 'all' ? 'All Lots' : cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mt-8">
+          {filteredAuctions.map((item) => (
+            <AuctionCard
+              key={item.id}
+              item={item}
+              currency={currency}
+              userBidsOnItem={userBids.filter((b) => b.auctionId === item.id)}
+              onSelect={(selected) => setSelectedAuction(selected)}
+              onOpenAudit={(completed) => setAuditAuction(completed)}
+            />
+          ))}
+        </div>
+      </main>
+
+      <footer className="mt-auto border-t border-slate-800/80 bg-slate-950 py-8 text-center text-xs text-slate-500">
+        © {new Date().getFullYear()} Addis Bid Technologies PLC. Addis Ababa, Ethiopia.
+      </footer>
+
+      {selectedAuction && (
+        <AuctionDetailModal
+          item={selectedAuction}
+          user={user}
+          currency={currency}
+          userBidsOnItem={userBids.filter((b) => b.auctionId === selectedAuction.id)}
+          onClose={() => setSelectedAuction(null)}
+          onPlaceBid={handlePlaceBid}
+          onPlaceSpreadBids={handlePlaceSpreadBids}
+          onOpenWallet={() => {
+            setSelectedAuction(null);
+            setIsWalletOpen(true);
+          }}
+        />
+      )}
+
+      {auditAuction && (
+        <AuctionResultModal
+          item={auditAuction}
+          currency={currency}
+          onClose={() => setAuditAuction(null)}
+          onClaimPrize={() => {
+            setClaimAuction(auditAuction);
+            setAuditAuction(null);
+          }}
+          isUserWinner={auditAuction.winningBid?.userId === user.id}
+        />
+      )}
+
+      {claimAuction && (
+        <ClaimPrizeModal
+          item={claimAuction}
+          user={user}
+          winningAmount={claimAuction.winningBid?.amount || 4.17}
+          onClose={() => setClaimAuction(null)}
+          onSuccess={() => {
+            setUser((prev) => ({ ...prev, winsCount: prev.winsCount + 1 }));
+          }}
+        />
+      )}
+
+      {isHowItWorksOpen && (
+        <HowItWorksModal onClose={() => setIsHowItWorksOpen(false)} onOpenSandbox={() => setIsSandboxOpen(true)} />
+      )}
+      {isSandboxOpen && <StrategySandbox onClose={() => setIsSandboxOpen(false)} />}
+      {isWalletOpen && (
+        <WalletModal
+          user={user}
+          currency={currency}
+          transactions={transactions}
+          onClose={() => setIsWalletOpen(false)}
+          onDeposit={handleDeposit}
+        />
+      )}
+      {isMyBidsOpen && (
+        <MyBidsModal
+          bids={userBids}
+          auctions={auctions}
+          onClose={() => setIsMyBidsOpen(false)}
+          onSelectAuction={(lot) => {
+            setIsMyBidsOpen(false);
+            setSelectedAuction(lot);
+          }}
+          onClaimPrize={(lot) => {
+            setIsMyBidsOpen(false);
+            setClaimAuction(lot);
+          }}
+        />
+      )}
+      {isNotificationsOpen && (
+        <NotificationsPopover
+          notifications={notifications}
+          onClose={() => setIsNotificationsOpen(false)}
+          onMarkAllAsRead={() => setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))}
+          onNotificationClick={() => {}}
+        />
+      )}
+    </div>
+  );
+}
