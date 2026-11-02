@@ -1,6 +1,0 @@
-{
-  "name": "Addis Bid",
-  "description": "Innovative auction platform where the lowest unique price wins. Place secret bids on electronics, vehicles, and goods.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
