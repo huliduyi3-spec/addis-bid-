@@ -1,0 +1,202 @@
+import React, { useState, useEffect } from 'react';
+import { Clock, ShieldCheck, Trophy, Sparkles, CheckCircle2 } from 'lucide-react';
+import { AuctionItem, UserBid } from '../types/auction';
+import { formatETB, formatUSD, formatTimeRemaining } from '../utils/lubEngine';
+
+interface AuctionCardProps {
+  item: AuctionItem;
+  currency: 'ETB' | 'USD';
+  userBidsOnItem: UserBid[];
+  onSelect: (item: AuctionItem) => void;
+  onOpenAudit: (item: AuctionItem) => void;
+}
+
+export const AuctionCard: React.FC<AuctionCardProps> = ({
+  item,
+  currency,
+  userBidsOnItem,
+  onSelect,
+  onOpenAudit,
+}) => {
+  const [timeLeft, setTimeLeft] = useState<number>(() => Math.max(0, item.endTime - Date.now()));
+
+  useEffect(() => {
+    if (item.status === 'completed') return;
+
+    const interval = setInterval(() => {
+      const remaining = Math.max(0, item.endTime - Date.now());
+      setTimeLeft(remaining);
+      if (remaining <= 0) {
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [item.endTime, item.status]);
+
+  const timeFormatted = formatTimeRemaining(timeLeft);
+  const isCompleted = item.status === 'completed' || timeLeft <= 0;
+  const isFinal5Minutes = !isCompleted && timeLeft > 0 && timeLeft <= 5 * 60 * 1000;
+
+  // Check if user has an active winning bid
+  const hasUserWinningBid = userBidsOnItem.some((b) => b.status === 'unique_lowest');
+  const hasUserDuplicateBid = userBidsOnItem.some((b) => b.status === 'duplicated');
+
+  return (
+    <div
+      className={`bg-slate-900/80 border rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group relative ${
+        isFinal5Minutes
+          ? 'border-rose-500/70 shadow-lg shadow-rose-950/40 ring-1 ring-rose-500/50'
+          : 'border-slate-800 hover:border-slate-700'
+      }`}
+    >
+      {/* Visual Product Showcase */}
+      <div className="relative aspect-[4/3] bg-slate-950 overflow-hidden">
+        <img
+          src={item.image}
+          alt={item.title}
+          referrerPolicy="no-referrer"
+          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+        />
+
+        {/* Top Badges / Metadata Overlay */}
+        <div className="absolute top-3 inset-x-3 flex items-center justify-between pointer-events-none">
+          <div className="bg-slate-950/85 backdrop-blur-sm border border-slate-800 px-2.5 py-1 rounded text-[11px] text-white">
+            <span className="text-slate-400 mr-1">Value:</span>
+            <span className="font-mono font-semibold tabular-nums text-amber-300">
+              {currency === 'ETB' ? formatETB(item.retailValueETB) : formatUSD(item.retailValueUSD)}
+            </span>
+          </div>
+
+          <div
+            className={`backdrop-blur-sm px-2.5 py-1 rounded text-[11px] font-mono tabular-nums flex items-center gap-1.5 transition-colors ${
+              isCompleted
+                ? 'bg-slate-950/85 border border-slate-800 text-slate-200'
+                : isFinal5Minutes
+                ? 'bg-rose-950/90 border border-rose-500 text-rose-200 font-bold shadow-md shadow-rose-900/50 animate-pulse'
+                : 'bg-slate-950/85 border border-slate-800 text-slate-200'
+            }`}
+          >
+            {isFinal5Minutes ? (
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+              </span>
+            ) : (
+              <Clock className="w-3 h-3 text-amber-400" />
+            )}
+            {isCompleted ? (
+              <span className="text-emerald-400 font-semibold">Ended</span>
+            ) : (
+              <span className={isFinal5Minutes ? 'text-rose-100 font-bold tracking-wider' : ''}>
+                {timeFormatted.hours}:{timeFormatted.minutes}:{timeFormatted.seconds}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Final 5 Minutes Urgent Banner Overlay */}
+        {isFinal5Minutes && (
+          <div className="absolute top-11 right-3 bg-gradient-to-r from-rose-600 to-amber-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-lg uppercase tracking-wider animate-pulse flex items-center gap-1">
+            <span>🔥 Final 5 Mins</span>
+          </div>
+        )}
+
+        {/* User Bid Status Indicator on Card */}
+        {userBidsOnItem.length > 0 && (
+          <div className="absolute bottom-3 left-3 bg-slate-950/90 backdrop-blur-sm border border-slate-800 px-2.5 py-1 rounded text-[11px] text-white flex items-center gap-1.5">
+            {hasUserWinningBid ? (
+              <span className="text-amber-300 font-semibold flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-amber-400" />
+                Your Bid Is Unique & Lowest!
+              </span>
+            ) : hasUserDuplicateBid ? (
+              <span className="text-rose-400 flex items-center gap-1">
+                ⚠️ Bid Duplicated
+              </span>
+            ) : (
+              <span className="text-slate-300">
+                {userBidsOnItem.length} Bids Placed
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Card Content & Action Area */}
+      <div className="p-4 sm:p-5 flex flex-col flex-1">
+        <div className="flex items-center gap-2 text-xs text-slate-400 mb-1.5">
+          <span className="uppercase tracking-wider font-semibold text-amber-400/90">
+            {item.category}
+          </span>
+          <span aria-hidden="true" className="text-slate-700">·</span>
+          <span>{item.condition}</span>
+        </div>
+
+        <h3 className="font-display font-bold text-base sm:text-lg text-white tracking-tight leading-snug line-clamp-1 group-hover:text-amber-300 transition-colors">
+          {item.title}
+        </h3>
+
+        <p className="mt-1 text-xs text-slate-400 line-clamp-2 leading-relaxed">
+          {item.subtitle}
+        </p>
+
+        {/* Dynamic State Info */}
+        <div className="mt-auto pt-4 border-t border-slate-800/80">
+          {isCompleted && item.winningBid ? (
+            <div className="bg-emerald-950/30 border border-emerald-800/40 rounded-lg p-2.5 mb-3 text-xs">
+              <div className="flex items-center justify-between text-emerald-400 font-medium">
+                <span className="flex items-center gap-1">
+                  <Trophy className="w-3.5 h-3.5 text-amber-400" />
+                  Winner: {item.winningBid.userName}
+                </span>
+                <span className="font-mono tabular-nums font-bold text-white">
+                  {formatETB(item.winningBid.amount)}
+                </span>
+              </div>
+              <div className="text-[11px] text-slate-400 mt-1">
+                Saved {item.winningBid.retailSavingsPercent}% off retail value!
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between text-xs mb-3">
+              <div>
+                <span className="text-slate-500">Sealed Bids:</span>
+                <span className="ml-1.5 font-mono font-medium text-slate-200 tabular-nums">
+                  {item.totalBidsCount} placed
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-500">Entry Fee:</span>
+                <span className="ml-1.5 font-mono font-semibold text-amber-400 tabular-nums">
+                  {formatETB(item.entryFeeETB)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Action Button */}
+          {isCompleted ? (
+            <button
+              onClick={() => onOpenAudit(item)}
+              className="w-full py-2.5 px-4 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs transition-colors flex items-center justify-center gap-2"
+            >
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>Inspect Transparent Fairness Ledger</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => onSelect(item)}
+              className="w-full py-2.5 px-4 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-semibold text-xs transition-colors flex items-center justify-center gap-2 active:scale-[0.99]"
+            >
+              <span>Place Secret Bid</span>
+              <span className="text-[11px] font-normal text-slate-800">
+                (Fee: {formatETB(item.entryFeeETB)})
+              </span>
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
