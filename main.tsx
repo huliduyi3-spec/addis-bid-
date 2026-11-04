@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import confetti from 'canvas-confetti';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import {
   Wallet, Bell, Award, HelpCircle, Sparkles, Sliders, ArrowDown, Play,
   ShieldCheck, Zap, Coins, Clock, Trophy, CheckCircle2, X, ChevronRight,
@@ -571,6 +572,9 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Vercel Speed Insights */}
+      <SpeedInsights />
     </div>
   );
 }
