@@ -41,7 +41,17 @@ import {
 } from 'lucide-react';
 
 /* ================= TYPES ================= */
-export type AuctionCategory = 'all' | 'vehicles' | 'smartphones' | 'electronics' | 'luxury';
+export type AuctionCategory =
+  | 'all'
+  | 'gold'
+  | 'vehicles'
+  | 'real_estate'
+  | 'playstation'
+  | 'laptops'
+  | 'smartphones'
+  | 'watches'
+  | 'appliances'
+  | 'luxury';
 
 export interface BidRecord {
   id: string;
@@ -105,6 +115,23 @@ export interface DepositRequest {
 const INITIAL_AUCTIONS: AuctionItem[] = [
   // --- Active Auctions ---
   {
+    id: 'auc-gold-bar-100g',
+    title: '24K Pure Gold Bullion Bar (100g)',
+    subtitle: '999.9 Fine Investment Gold, Certified Assay Card & Serial Number',
+    category: 'gold',
+    retailValueETB: 1350000,
+    entryFeeETB: 100,
+    maxAllowedBidETB: 999999,
+    endTime: Date.now() + 1000 * 60 * 60 * 28,
+    image: 'https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&q=80&w=1000',
+    status: 'active',
+    totalBidsCount: 1680,
+    bids: [
+      { id: 'bg1', userId: 'u1', userName: 'Dawit M.', amount: 4.15, timestamp: Date.now() - 3600000 },
+      { id: 'bg2', userId: 'u2', userName: 'Selam K.', amount: 8.75, timestamp: Date.now() - 7200000 },
+    ],
+  },
+  {
     id: 'auc-landcruiser',
     title: 'Toyota Land Cruiser VXR 2024',
     subtitle: 'Twin-Turbo V6, Zero Km, Full Option Executive Edition',
@@ -121,6 +148,82 @@ const INITIAL_AUCTIONS: AuctionItem[] = [
       { id: 'b2', userId: 'u2', userName: 'Selam K.', amount: 18.2, timestamp: Date.now() - 7200000 },
       { id: 'b3', userId: 'u3', userName: 'Abebe T.', amount: 12.45, timestamp: Date.now() - 10000000 },
     ],
+  },
+  {
+    id: 'auc-bole-villa',
+    title: 'Bole Executive 3-Bedroom Luxury Apartment',
+    subtitle: '190 sqm, Prime Addis Ababa Location, Title Deed Ready',
+    category: 'real_estate',
+    retailValueETB: 35000000,
+    entryFeeETB: 350,
+    maxAllowedBidETB: 999999,
+    endTime: Date.now() + 1000 * 60 * 60 * 24 * 6,
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1000',
+    status: 'active',
+    totalBidsCount: 2150,
+    bids: [
+      { id: 'bv1', userId: 'u4', userName: 'Tigist B.', amount: 9.35, timestamp: Date.now() - 5000000 },
+    ],
+  },
+  {
+    id: 'auc-ps5-pro',
+    title: 'Sony PlayStation 5 Pro 2TB Console',
+    subtitle: 'Enhanced 4K/120fps Ray Tracing + DualSense Edge Controller Bundle',
+    category: 'playstation',
+    retailValueETB: 145000,
+    entryFeeETB: 40,
+    maxAllowedBidETB: 999999,
+    endTime: Date.now() + 1000 * 60 * 60 * 18,
+    image: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&q=80&w=1000',
+    status: 'active',
+    totalBidsCount: 920,
+    bids: [
+      { id: 'bp1', userId: 'u5', userName: 'Henok F.', amount: 3.8, timestamp: Date.now() - 2000000 },
+    ],
+  },
+  {
+    id: 'auc-macbook-m3',
+    title: 'MacBook Pro 16" M3 Max',
+    subtitle: '36GB Unified Memory, 1TB SSD, Space Black Edition',
+    category: 'laptops',
+    retailValueETB: 380000,
+    entryFeeETB: 65,
+    maxAllowedBidETB: 999999,
+    endTime: Date.now() + 1000 * 60 * 60 * 12,
+    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=1000',
+    status: 'active',
+    totalBidsCount: 840,
+    bids: [
+      { id: 'b6', userId: 'u6', userName: 'Ermias G.', amount: 6.45, timestamp: Date.now() - 2500000 },
+    ],
+  },
+  {
+    id: 'auc-rolex-sub',
+    title: 'Rolex Submariner Date 41mm',
+    subtitle: 'Oystersteel, Cerachrom Ceramic Bezel, Box & Official Papers',
+    category: 'watches',
+    retailValueETB: 1850000,
+    entryFeeETB: 150,
+    maxAllowedBidETB: 999999,
+    endTime: Date.now() + 1000 * 60 * 60 * 42,
+    image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=1000',
+    status: 'active',
+    totalBidsCount: 1120,
+    bids: [],
+  },
+  {
+    id: 'auc-fridge-bespoke',
+    title: 'Samsung Bespoke 4-Door French Refrigerator',
+    subtitle: '29 cu. ft. Smart Wi-Fi, Beverage Center, Dual Auto Ice Maker',
+    category: 'appliances',
+    retailValueETB: 340000,
+    entryFeeETB: 50,
+    maxAllowedBidETB: 999999,
+    endTime: Date.now() + 1000 * 60 * 60 * 30,
+    image: 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?auto=format&fit=crop&q=80&w=1000',
+    status: 'active',
+    totalBidsCount: 610,
+    bids: [],
   },
   {
     id: 'auc-iphone16',
@@ -140,59 +243,15 @@ const INITIAL_AUCTIONS: AuctionItem[] = [
     ],
   },
   {
-    id: 'auc-macbook-m3',
-    title: 'MacBook Pro 16" M3 Max',
-    subtitle: '36GB Unified Memory, 1TB SSD, Space Black Edition',
-    category: 'electronics',
-    retailValueETB: 290000,
-    entryFeeETB: 60,
+    id: 'auc-gold-necklace',
+    title: '21K Italian Handcrafted Gold Necklace Set (45g)',
+    subtitle: 'Solid 21K Gold, Luxury Velvet Presentation Case & Guarantee',
+    category: 'gold',
+    retailValueETB: 580000,
+    entryFeeETB: 75,
     maxAllowedBidETB: 999999,
-    endTime: Date.now() + 1000 * 60 * 60 * 8,
-    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=1000',
-    status: 'active',
-    totalBidsCount: 654,
-    bids: [
-      { id: 'b6', userId: 'u6', userName: 'Ermias G.', amount: 9.35, timestamp: Date.now() - 2500000 },
-    ],
-  },
-  {
-    id: 'auc-s25-ultra',
-    title: 'Samsung Galaxy S25 Ultra 512GB',
-    subtitle: 'Titanium Silver, 200MP Camera, S-Pen, Brand New Boxed',
-    category: 'smartphones',
-    retailValueETB: 175000,
-    entryFeeETB: 40,
-    maxAllowedBidETB: 999999,
-    endTime: Date.now() + 1000 * 60 * 60 * 20,
-    image: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&q=80&w=1000',
-    status: 'active',
-    totalBidsCount: 412,
-    bids: [],
-  },
-  {
-    id: 'auc-ps5-pro',
-    title: 'Sony PlayStation 5 Pro 2TB',
-    subtitle: 'Enhanced 4K/120fps Ray Tracing + Extra DualSense Controller',
-    category: 'electronics',
-    retailValueETB: 98000,
-    entryFeeETB: 35,
-    maxAllowedBidETB: 999999,
-    endTime: Date.now() + 1000 * 60 * 60 * 36,
-    image: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&q=80&w=1000',
-    status: 'active',
-    totalBidsCount: 520,
-    bids: [],
-  },
-  {
-    id: 'auc-rolex-sub',
-    title: 'Rolex Submariner Date 41mm',
-    subtitle: 'Oystersteel, Cerachrom Ceramic Bezel, Box & Official Papers',
-    category: 'luxury',
-    retailValueETB: 1850000,
-    entryFeeETB: 150,
-    maxAllowedBidETB: 999999,
-    endTime: Date.now() + 1000 * 60 * 60 * 48,
-    image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=1000',
+    endTime: Date.now() + 1000 * 60 * 60 * 50,
+    image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=1000',
     status: 'active',
     totalBidsCount: 780,
     bids: [],
@@ -200,33 +259,56 @@ const INITIAL_AUCTIONS: AuctionItem[] = [
 
   // --- Completed Auctions / Verified Winners ---
   {
-    id: 'auc-won-iphone15',
-    title: 'iPhone 15 Pro Max 256GB Natural Titanium',
+    id: 'auc-won-gold',
+    title: '24K Fine Gold Bar 50g Credit Suisse',
     subtitle: 'Completed Auction â€” Verified Lowest Unique Bid Winner!',
-    category: 'smartphones',
-    retailValueETB: 175000,
-    entryFeeETB: 50,
+    category: 'gold',
+    retailValueETB: 680000,
+    entryFeeETB: 80,
     maxAllowedBidETB: 999999,
-    endTime: Date.now() - 1000 * 60 * 60 * 18,
-    image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&q=80&w=1000',
+    endTime: Date.now() - 1000 * 60 * 60 * 12,
+    image: 'https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&q=80&w=1000',
     status: 'completed',
-    totalBidsCount: 1420,
+    totalBidsCount: 1540,
     bids: [],
     winner: {
-      userName: 'Ermias Tesfaye',
-      userPhone: '0911 *** 42',
-      winningBidETB: 1.45,
-      marketValueETB: 175000,
+      userName: 'Kassahun Haile',
+      userPhone: '0911 *** 55',
+      winningBidETB: 3.42,
+      marketValueETB: 680000,
       savingsPercentage: 99.99,
-      completedAt: Date.now() - 1000 * 60 * 60 * 18,
-      hashProof: 'LUB-7F83B165-89412',
+      completedAt: Date.now() - 1000 * 60 * 60 * 12,
+      hashProof: 'LUB-GLD-882914-ETH',
+    },
+  },
+  {
+    id: 'auc-won-villa',
+    title: 'CMC Modern Executive Apartment (140 sqm)',
+    subtitle: 'Completed Auction â€” Verified Lowest Unique Bid Winner!',
+    category: 'real_estate',
+    retailValueETB: 24000000,
+    entryFeeETB: 300,
+    maxAllowedBidETB: 999999,
+    endTime: Date.now() - 1000 * 60 * 60 * 36,
+    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=1000',
+    status: 'completed',
+    totalBidsCount: 2890,
+    bids: [],
+    winner: {
+      userName: 'Yared Wolde',
+      userPhone: '0917 *** 92',
+      winningBidETB: 8.85,
+      marketValueETB: 24000000,
+      savingsPercentage: 99.99,
+      completedAt: Date.now() - 1000 * 60 * 60 * 36,
+      hashProof: 'LUB-EST-492019-ADD',
     },
   },
   {
     id: 'auc-won-ps5',
     title: 'Sony PlayStation 5 Disc Edition + 2 Controllers',
     subtitle: 'Completed Auction â€” Verified Lowest Unique Bid Winner!',
-    category: 'electronics',
+    category: 'playstation',
     retailValueETB: 95000,
     entryFeeETB: 35,
     maxAllowedBidETB: 999999,
@@ -246,33 +328,33 @@ const INITIAL_AUCTIONS: AuctionItem[] = [
     },
   },
   {
-    id: 'auc-won-s24u',
-    title: 'Samsung Galaxy S24 Ultra 512GB Titanium Grey',
+    id: 'auc-won-iphone15',
+    title: 'iPhone 15 Pro Max 256GB Natural Titanium',
     subtitle: 'Completed Auction â€” Verified Lowest Unique Bid Winner!',
     category: 'smartphones',
-    retailValueETB: 160000,
-    entryFeeETB: 40,
+    retailValueETB: 175000,
+    entryFeeETB: 50,
     maxAllowedBidETB: 999999,
-    endTime: Date.now() - 1000 * 60 * 60 * 96,
-    image: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&q=80&w=1000',
+    endTime: Date.now() - 1000 * 60 * 60 * 60,
+    image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&q=80&w=1000',
     status: 'completed',
-    totalBidsCount: 860,
+    totalBidsCount: 1420,
     bids: [],
     winner: {
-      userName: 'Yonatan Bekele',
-      userPhone: '0945 *** 19',
-      winningBidETB: 2.10,
-      marketValueETB: 160000,
+      userName: 'Ermias Tesfaye',
+      userPhone: '0911 *** 42',
+      winningBidETB: 1.45,
+      marketValueETB: 175000,
       savingsPercentage: 99.99,
-      completedAt: Date.now() - 1000 * 60 * 60 * 96,
-      hashProof: 'LUB-9C25E311-55291',
+      completedAt: Date.now() - 1000 * 60 * 60 * 60,
+      hashProof: 'LUB-7F83B165-89412',
     },
   },
   {
     id: 'auc-won-macbook',
     title: 'Apple MacBook Air 13" M2 Chip 256GB Space Grey',
     subtitle: 'Completed Auction â€” Verified Lowest Unique Bid Winner!',
-    category: 'electronics',
+    category: 'laptops',
     retailValueETB: 145000,
     entryFeeETB: 50,
     maxAllowedBidETB: 999999,
@@ -339,7 +421,7 @@ export default function App() {
   /* ================= APP STATE ================= */
   const [auctions, setAuctions] = useState<AuctionItem[]>(() => {
     try {
-      const saved = localStorage.getItem('addisbid_auctions_catalog_v6');
+      const saved = localStorage.getItem('addisbid_auctions_catalog_v7');
       if (saved) return JSON.parse(saved);
       const oldSaved = localStorage.getItem('addisbid_auctions_catalog_v5') || localStorage.getItem('addisbid_auctions_catalog');
       if (oldSaved) {
@@ -348,7 +430,7 @@ export default function App() {
         if (!hasCompleted) {
           const completedSeeds = INITIAL_AUCTIONS.filter((a) => a.status === 'completed');
           const merged = [...parsed, ...completedSeeds];
-          localStorage.setItem('addisbid_auctions_catalog_v6', JSON.stringify(merged));
+          localStorage.setItem('addisbid_auctions_catalog_v7', JSON.stringify(merged));
           return merged;
         }
         return parsed;
@@ -447,7 +529,7 @@ export default function App() {
   const saveAuctionsCatalog = (items: AuctionItem[]) => {
     setAuctions(items);
     try {
-      localStorage.setItem('addisbid_auctions_catalog_v6', JSON.stringify(items));
+      localStorage.setItem('addisbid_auctions_catalog_v7', JSON.stringify(items));
     } catch {}
   };
 
@@ -1006,18 +1088,28 @@ export default function App() {
             />
           </div>
 
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-            {(['all', 'vehicles', 'smartphones', 'electronics', 'luxury'] as AuctionCategory[]).map((cat) => (
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+            {([
+              { id: 'all', label: 'All Lots' },
+              { id: 'gold', label: 'âœ¨ Gold & Bullion' },
+              { id: 'vehicles', label: 'ðŸš— Cars & Vehicles' },
+              { id: 'real_estate', label: 'ðŸ  Houses & Real Estate' },
+              { id: 'playstation', label: 'ðŸŽ® PlayStation' },
+              { id: 'laptops', label: 'ðŸ’» Laptops' },
+              { id: 'smartphones', label: 'ðŸ“± Smartphones' },
+              { id: 'watches', label: 'âŒš Luxury Watches' },
+              { id: 'appliances', label: 'â„ï¸ Fridges & Appliances' },
+            ] as { id: AuctionCategory; label: string }[]).map((cat) => (
               <button
-                key={cat}
-                onClick={() => setCategoryFilter(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors capitalize ${
-                  categoryFilter === cat
+                key={cat.id}
+                onClick={() => setCategoryFilter(cat.id)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+                  categoryFilter === cat.id
                     ? 'bg-amber-400 text-slate-950 shadow-sm'
                     : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
                 }`}
               >
-                {cat === 'all' ? 'All Items' : cat}
+                {cat.label}
               </button>
             ))}
           </div>
@@ -2165,10 +2257,14 @@ export default function App() {
                     name="lotCategory"
                     className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-white"
                   >
-                    <option value="smartphones">Smartphones</option>
-                    <option value="vehicles">Vehicles</option>
-                    <option value="electronics">Electronics</option>
-                    <option value="luxury">Luxury</option>
+                    <option value="gold">Gold & Bullion (á‹ˆáˆ­á‰…)</option>
+                    <option value="vehicles">Vehicles & Cars (áˆ˜áŠªáŠ“)</option>
+                    <option value="real_estate">Houses & Real Estate (á‰¤á‰µ)</option>
+                    <option value="playstation">PlayStation & Gaming (á•áˆŒá‹­áˆµá‰´áˆ½áŠ•)</option>
+                    <option value="laptops">Laptops & Computers (áˆ‹á•á‰¶á•)</option>
+                    <option value="smartphones">Smartphones (áˆµáˆáŠ®á‰½)</option>
+                    <option value="watches">Luxury Watches (áˆ°á‹“á‰¶á‰½)</option>
+                    <option value="appliances">Fridges & Home Appliances (ááˆªáŒ…)</option>
                   </select>
                 </div>
                 <div>
